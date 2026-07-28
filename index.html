@@ -2,10 +2,12 @@
 <html>
 
 <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
     <title>Odyssey – Wave & Shake</title>
     <style>
         /* ============================================================
-               RETRO TERMINAL STYLE – MOBILE FRIENDLY
+               RETRO TERMINAL STYLE – MOBILE FIRST
                ============================================================ */
         * {
             box-sizing: border-box;
@@ -16,14 +18,13 @@
         body {
             background: #0a0f0a;
             font-family: "Courier New", Courier, monospace;
-            padding: 12px;
+            padding: 10px;
             display: flex;
             justify-content: center;
             min-height: 100vh;
             margin: 0;
             color: #b8c8a0;
             user-select: none;
-            /* larger base for mobile */
             font-size: 1.1rem;
         }
 
@@ -32,14 +33,14 @@
             width: 100%;
             background: #0f1a0f;
             border: 2px solid #3a5a3a;
-            padding: 16px;
+            padding: 14px;
             border-radius: 8px;
             box-shadow: 0 0 20px #0a2a0a;
         }
 
-        /* ---- ASCII header – responsive size ---- */
+        /* ---- ASCII header – scales with viewport ---- */
         .ascii-art {
-            font-size: clamp(8px, 2vw, 12px);
+            font-size: clamp(6px, 1.8vw, 11px);
             line-height: 1.3;
             color: #5a8a5a;
             text-align: center;
@@ -48,7 +49,7 @@
         }
 
         .title {
-            font-size: clamp(1.6rem, 6vw, 2.6rem);
+            font-size: clamp(1.4rem, 5.5vw, 2.4rem);
             font-weight: bold;
             text-align: center;
             color: #c8d8a0;
@@ -60,17 +61,17 @@
         .subtitle {
             text-align: center;
             color: #6a8a5a;
-            font-size: clamp(0.8rem, 2.5vw, 1rem);
-            margin-bottom: 12px;
+            font-size: clamp(0.7rem, 2.2vw, 0.95rem);
+            margin-bottom: 10px;
             border-bottom: 1px dashed #3a5a3a;
-            padding-bottom: 8px;
+            padding-bottom: 6px;
         }
 
         /* ---- Wave canvas ---- */
         .wave-container {
             background: #081008;
             border: 1px solid #2a4a2a;
-            margin: 8px 0 14px 0;
+            margin: 6px 0 12px 0;
             position: relative;
             width: 100%;
             aspect-ratio: 16 / 6;
@@ -87,12 +88,12 @@
             image-rendering: crisp-edges;
         }
 
-        /* ---- Shake Panel – bigger text ---- */
+        /* ---- Shake Panel – bigger text & padding ---- */
         .panel {
             background: #0a140a;
             border: 1px solid #2a4a2a;
-            padding: 12px 16px;
-            margin: 10px 0;
+            padding: 10px 14px;
+            margin: 8px 0;
         }
 
         .panel-row {
@@ -100,32 +101,32 @@
             justify-content: space-between;
             align-items: center;
             flex-wrap: wrap;
-            gap: 8px;
+            gap: 6px;
         }
 
         .label {
             color: #6a8a5a;
             text-transform: uppercase;
             letter-spacing: 2px;
-            font-size: clamp(0.8rem, 2vw, 1rem);
+            font-size: clamp(0.7rem, 2vw, 0.95rem);
         }
 
         .value {
-            font-size: clamp(2rem, 6vw, 3rem);
+            font-size: clamp(1.8rem, 5.5vw, 2.8rem);
             font-weight: bold;
             color: #c8d8a0;
-            min-width: 60px;
+            min-width: 50px;
             text-align: right;
         }
 
         .bar-outer {
             width: 100%;
-            height: 24px;
+            height: 22px;
             background: #0a1a0a;
             border: 1px solid #2a4a2a;
-            margin: 6px 0 8px 0;
-            font-size: clamp(0.9rem, 2.5vw, 1.2rem);
-            line-height: 24px;
+            margin: 4px 0 6px 0;
+            font-size: clamp(0.8rem, 2.2vw, 1.1rem);
+            line-height: 22px;
             color: #5a8a5a;
             letter-spacing: 2px;
             overflow: hidden;
@@ -144,13 +145,13 @@
 
         .zone {
             display: inline-block;
-            padding: 4px 16px;
+            padding: 4px 14px;
             border: 1px solid #4a6a4a;
             font-weight: bold;
             letter-spacing: 2px;
             background: #0a1a0a;
-            margin-top: 6px;
-            font-size: clamp(1rem, 3vw, 1.4rem);
+            margin-top: 4px;
+            font-size: clamp(0.9rem, 2.8vw, 1.3rem);
             color: #7a9a7a;
         }
 
@@ -185,17 +186,17 @@
             }
         }
 
-        /* ---- Text Progress – larger, more padding ---- */
+        /* ---- Text Progress – bigger text, more padding ---- */
         .scroll {
             background: #0a140a;
             border: 1px solid #1a3a1a;
-            padding: 12px 16px;
-            max-height: 180px;
+            padding: 10px 14px;
+            max-height: 160px;
             overflow-y: auto;
-            font-size: clamp(1rem, 2.8vw, 1.2rem);
+            font-size: clamp(0.95rem, 2.6vw, 1.15rem);
             line-height: 1.6;
             color: #8aaa7a;
-            margin: 12px 0;
+            margin: 10px 0;
         }
 
         .scroll .current {
@@ -210,13 +211,13 @@
             font-style: italic;
         }
 
-        /* ---- Controls – bigger buttons ---- */
+        /* ---- Controls – big, easy buttons ---- */
         .controls {
             display: flex;
-            gap: 14px;
+            gap: 12px;
             flex-wrap: wrap;
             justify-content: center;
-            margin: 10px 0 6px 0;
+            margin: 8px 0 4px 0;
         }
 
         .btn {
@@ -224,14 +225,15 @@
             border: 2px solid #3a5a3a;
             color: #b8c8a0;
             font-family: inherit;
-            font-size: clamp(1.1rem, 3vw, 1.4rem);
-            padding: 12px 28px;
+            font-size: clamp(1rem, 2.8vw, 1.3rem);
+            padding: 10px 24px;
             cursor: pointer;
             transition: 0.2s;
             letter-spacing: 2px;
             background: #0a1a0a;
             border-radius: 4px;
-            min-width: 130px;
+            min-width: 110px;
+            flex: 1 1 auto;
         }
 
         .btn:hover {
@@ -273,23 +275,23 @@
         .status-line {
             text-align: center;
             color: #6a8a5a;
-            font-size: clamp(0.85rem, 2.2vw, 1rem);
-            margin-top: 8px;
+            font-size: clamp(0.8rem, 2vw, 0.95rem);
+            margin-top: 6px;
             border-top: 1px dashed #1a3a1a;
-            padding-top: 8px;
+            padding-top: 6px;
         }
 
         .footer {
             text-align: center;
             color: #3a5a3a;
-            font-size: clamp(0.7rem, 1.8vw, 0.85rem);
-            margin-top: 12px;
+            font-size: clamp(0.65rem, 1.6vw, 0.8rem);
+            margin-top: 10px;
         }
 
         .click-hint {
             color: #5a7a5a;
             animation: blink 1.2s infinite;
-            font-size: clamp(0.8rem, 2vw, 1rem);
+            font-size: clamp(0.75rem, 1.8vw, 0.9rem);
         }
 
         @keyframes blink {
@@ -305,16 +307,16 @@
         }
 
         .scroll::-webkit-scrollbar {
-            width: 8px;
+            width: 6px;
             background: #0a1a0a;
         }
 
         .scroll::-webkit-scrollbar-thumb {
             background: #2a4a2a;
-            border-radius: 4px;
+            border-radius: 3px;
         }
 
-        /* ---- extra touch target for the whole container ---- */
+        /* ---- click area covers whole container ---- */
         .click-area {
             cursor: pointer;
         }
@@ -389,7 +391,7 @@
         import SamJs from 'sam-js';
 
         // ============================================================
-        //  FULL ODYSSEY TEXT (truncated for brevity; full copy below)
+        //  FULL ODYSSEY TEXT (same as before)
         // ============================================================
         const odysseyText =
             "The man, O Muse, inform, that many a way\n" +
@@ -696,7 +698,6 @@
             const h = canvas.height;
             ctx.clearRect(0, 0, w, h);
 
-            // Background
             ctx.fillStyle = '#0a1a0a';
             ctx.fillRect(0, 0, w, h);
 
