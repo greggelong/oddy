@@ -2,11 +2,11 @@
 <html>
 
 <head>
-    <title>Odyssey Reader – ASCII Trireme</title>
+    <title>Odyssey – Wave & Shake</title>
     <style>
-        /* ==========================================================
-               RETRO TERMINAL / ANCIENT BOAT THEME
-               ========================================================== */
+        /* ============================================================
+               RETRO TERMINAL STYLE
+               ============================================================ */
         * {
             box-sizing: border-box;
             margin: 0;
@@ -22,6 +22,7 @@
             min-height: 100vh;
             margin: 0;
             color: #b8c8a0;
+            user-select: none;
         }
 
         .container {
@@ -34,15 +35,14 @@
             box-shadow: 0 0 20px #0a2a0a;
         }
 
-        /* ASCII art header */
+        /* ---- ASCII header ---- */
         .ascii-art {
-            font-size: 11px;
+            font-size: 10px;
             line-height: 1.2;
             color: #5a8a5a;
             text-align: center;
             white-space: pre;
-            margin-bottom: 8px;
-            letter-spacing: 0;
+            margin-bottom: 4px;
         }
 
         .title {
@@ -52,24 +52,46 @@
             color: #c8d8a0;
             text-shadow: 0 0 8px #3a7a3a;
             letter-spacing: 6px;
-            margin: 4px 0 8px 0;
+            margin: 0 0 4px 0;
         }
 
         .subtitle {
             text-align: center;
             color: #6a8a5a;
-            font-size: 0.9rem;
-            margin-bottom: 16px;
+            font-size: 0.85rem;
+            margin-bottom: 12px;
             border-bottom: 1px dashed #3a5a3a;
-            padding-bottom: 8px;
+            padding-bottom: 6px;
         }
 
-        /* status panel */
+        /* ---- Pixelated Wave Canvas ---- */
+        .wave-container {
+            background: #081008;
+            border: 1px solid #2a4a2a;
+            margin: 8px 0 12px 0;
+            position: relative;
+            width: 100%;
+            aspect-ratio: 16 / 6;
+            /* retro pixel look */
+            image-rendering: pixelated;
+            image-rendering: crisp-edges;
+        }
+
+        #waveCanvas {
+            display: block;
+            width: 100%;
+            height: 100%;
+            background: #0a1a0a;
+            image-rendering: pixelated;
+            image-rendering: crisp-edges;
+        }
+
+        /* ---- Shake Panel ---- */
         .panel {
             background: #0a140a;
             border: 1px solid #2a4a2a;
-            padding: 12px 16px;
-            margin: 12px 0;
+            padding: 8px 12px;
+            margin: 8px 0;
         }
 
         .panel-row {
@@ -77,7 +99,7 @@
             justify-content: space-between;
             align-items: center;
             flex-wrap: wrap;
-            gap: 8px;
+            gap: 6px;
         }
 
         .label {
@@ -88,23 +110,21 @@
         }
 
         .value {
-            font-size: 2.2rem;
+            font-size: 1.8rem;
             font-weight: bold;
             color: #c8d8a0;
-            min-width: 60px;
+            min-width: 50px;
             text-align: right;
         }
 
-        /* shake bar – made of ASCII blocks */
         .bar-outer {
             width: 100%;
-            height: 20px;
+            height: 18px;
             background: #0a1a0a;
             border: 1px solid #2a4a2a;
-            margin: 4px 0 8px 0;
-            position: relative;
-            font-size: 14px;
-            line-height: 20px;
+            margin: 4px 0 6px 0;
+            font-size: 13px;
+            line-height: 18px;
             color: #5a8a5a;
             letter-spacing: 2px;
             overflow: hidden;
@@ -121,7 +141,6 @@
             font-weight: bold;
         }
 
-        /* zone badge – ASCII brackets */
         .zone {
             display: inline-block;
             padding: 2px 12px;
@@ -164,17 +183,17 @@
             }
         }
 
-        /* text progress */
+        /* ---- Text Progress ---- */
         .scroll {
             background: #0a140a;
             border: 1px solid #1a3a1a;
             padding: 8px 12px;
-            max-height: 150px;
+            max-height: 140px;
             overflow-y: auto;
             font-size: 0.9rem;
             line-height: 1.5;
             color: #8aaa7a;
-            margin: 12px 0;
+            margin: 10px 0;
         }
 
         .scroll .current {
@@ -184,13 +203,18 @@
             font-weight: bold;
         }
 
-        /* controls – bracketed buttons */
+        .scroll .prompt {
+            color: #6a8a5a;
+            font-style: italic;
+        }
+
+        /* ---- Controls ---- */
         .controls {
             display: flex;
             gap: 12px;
             flex-wrap: wrap;
             justify-content: center;
-            margin: 12px 0 6px 0;
+            margin: 8px 0 4px 0;
         }
 
         .btn {
@@ -198,7 +222,7 @@
             border: 1px solid #3a5a3a;
             color: #b8c8a0;
             font-family: inherit;
-            font-size: 1.1rem;
+            font-size: 1rem;
             padding: 6px 18px;
             cursor: pointer;
             transition: 0.2s;
@@ -242,21 +266,16 @@
             font-size: 0.8rem;
             margin-top: 6px;
             border-top: 1px dashed #1a3a1a;
-            padding-top: 8px;
+            padding-top: 6px;
         }
 
         .footer {
             text-align: center;
             color: #3a5a3a;
             font-size: 0.7rem;
-            margin-top: 12px;
+            margin-top: 10px;
         }
 
-        .footer a {
-            color: #5a7a5a;
-        }
-
-        /* scrollbar */
         .scroll::-webkit-scrollbar {
             width: 6px;
             background: #0a1a0a;
@@ -265,13 +284,32 @@
         .scroll::-webkit-scrollbar-thumb {
             background: #2a4a2a;
         }
+
+        /* Click hint */
+        .click-hint {
+            color: #5a7a5a;
+            animation: blink 1.2s infinite;
+            font-size: 0.8rem;
+        }
+
+        @keyframes blink {
+
+            0%,
+            100% {
+                opacity: 0.4;
+            }
+
+            50% {
+                opacity: 1;
+            }
+        }
     </style>
 </head>
 
 <body>
     <div class="container">
 
-        <!-- ===== ASCII ART ===== -->
+        <!-- ASCII trireme -->
         <pre class="ascii-art">
        ____
       /   _ \      ⚓
@@ -279,10 +317,15 @@
      | |   _     |   |    ~ ~ ~
      | \__/ |    |   |   /   \
      \______/     \_/   |  ⛵  |
-    </pre>
+        </pre>
 
         <div class="title">ODYSSEY</div>
-        <div class="subtitle">◈ speak with SAM ◈ shake to modulate ◈</div>
+        <div class="subtitle">◈ shake / tap to advance ◈ SAM speaks ◈</div>
+
+        <!-- ===== WAVE CANVAS ===== -->
+        <div class="wave-container">
+            <canvas id="waveCanvas"></canvas>
+        </div>
 
         <!-- ===== SHAKE PANEL ===== -->
         <div class="panel">
@@ -300,18 +343,17 @@
 
         <!-- ===== TEXT PROGRESS ===== -->
         <div class="scroll" id="textProgress">
-            <span class="current">» ready to embark «</span>
+            <span class="prompt">⏎ shake or tap to begin</span>
         </div>
 
         <!-- ===== CONTROLS ===== -->
         <div class="controls">
-            <button class="btn primary" id="startBtn">[ ▶ START ]</button>
-            <button class="btn danger" id="pauseBtn">[ ⏸ PAUSE ]</button>
-            <button class="btn" id="resetBtn">[ ↺ RESTART ]</button>
+            <button class="btn primary" id="startBtn">[ START ]</button>
+            <button class="btn" id="resetBtn">[ ↺ RESET ]</button>
         </div>
 
-        <div class="status-line" id="status">⟩ press START to set sail ⟨</div>
-        <div class="footer">⛵ SAM speech engine · shake your phone</div>
+        <div class="status-line" id="status">⟩ press START or tap/shake to begin ⟨</div>
+        <div class="footer">⛵ SAM speech · wave responds to shake · click/tap advances</div>
     </div>
 
     <!-- ============================================================ -->
@@ -332,7 +374,7 @@
         import SamJs from 'sam-js';
 
         // ============================================================
-        //  FULL ODYSSEY TEXT
+        //  FULL ODYSSEY TEXT (truncated for brevity; full copy below)
         // ============================================================
         const odysseyText =
             "The man, O Muse, inform, that many a way\n" +
@@ -595,31 +637,114 @@
         function splitSentences(text) {
             return text.split(/(?<=[.!?])\s+|\n/).filter(s => s.trim().length > 0);
         }
-
         const sentences = splitSentences(odysseyText);
-        let currentIndex = 0;
-        let isPaused = false;
-        let isSpeaking = false;
-        let currentSam = null;
-        let abortFlag = false;
 
         // ============================================================
         //  DOM REFS
         // ============================================================
+        const canvas = document.getElementById('waveCanvas');
+        const ctx = canvas.getContext('2d');
         const intensityValue = document.getElementById('intensityValue');
         const shakeBar = document.getElementById('shakeBar');
         const zoneBadge = document.getElementById('zoneBadge');
         const textProgress = document.getElementById('textProgress');
         const statusEl = document.getElementById('status');
         const startBtn = document.getElementById('startBtn');
-        const pauseBtn = document.getElementById('pauseBtn');
         const resetBtn = document.getElementById('resetBtn');
+
+        // ============================================================
+        //  STATE
+        // ============================================================
+        let shakeMagnitude = 0;
+        let currentIndex = 0;
+        let isSpeaking = false;
+        let isStarted = false;
+        let advanceLock = false; // prevent multiple advances
+
+        // ============================================================
+        //  WAVE ANIMATION (pixelated)
+        // ============================================================
+        function resizeCanvas() {
+            const rect = canvas.parentElement.getBoundingClientRect();
+            const w = rect.width;
+            const h = rect.height;
+            canvas.width = w * 2; // scale for pixelated look
+            canvas.height = h * 2;
+            canvas.style.width = w + 'px';
+            canvas.style.height = h + 'px';
+        }
+        window.addEventListener('resize', resizeCanvas);
+
+        function drawWave(time) {
+            const w = canvas.width;
+            const h = canvas.height;
+            ctx.clearRect(0, 0, w, h);
+
+            // Background
+            ctx.fillStyle = '#0a1a0a';
+            ctx.fillRect(0, 0, w, h);
+
+            const amplitude = 0.3 + shakeMagnitude * 0.7; // 0.3 .. 1.0
+            const baseY = h * 0.5;
+            const maxHeight = h * 0.4 * amplitude;
+
+            // Number of horizontal blocks (pixels)
+            const cols = 40;
+            const rows = 20;
+            const blockW = w / cols;
+            const blockH = h / rows;
+
+            // Draw pixelated waves
+            for (let col = 0; col < cols; col++) {
+                const x = col * blockW;
+                // sine wave with slight horizontal movement
+                const phase = (col / cols) * Math.PI * 6 + time * 0.02;
+                const yOff = Math.sin(phase) * maxHeight;
+                const waveY = baseY + yOff;
+
+                // Determine height of water column at this x (pixels)
+                const waterHeight = Math.max(0, (baseY + maxHeight - waveY) / blockH);
+                const waterRows = Math.floor(waterHeight);
+
+                // Draw each pixel row from bottom up
+                for (let row = 0; row < waterRows && row < rows; row++) {
+                    const y = (rows - 1 - row) * blockH;
+                    // Color based on row height and shake
+                    const depth = row / rows;
+                    const r = 20 + 60 * depth;
+                    const g = 60 + 100 * depth + 40 * shakeMagnitude;
+                    const b = 80 + 120 * depth + 60 * shakeMagnitude;
+                    ctx.fillStyle = `rgb(${r},${g},${b})`;
+                    ctx.fillRect(x, y, blockW, blockH);
+                }
+
+                // Add some white foam at the top if shake is high
+                if (shakeMagnitude > 0.3 && waterRows > 2) {
+                    const foamRow = Math.min(waterRows - 1, 2);
+                    const y = (rows - 1 - foamRow) * blockH;
+                    ctx.fillStyle = `rgba(220,240,255,${0.2 + shakeMagnitude * 0.3})`;
+                    ctx.fillRect(x, y, blockW, blockH * 0.8);
+                }
+            }
+
+            // Add horizontal wave line (pixelated)
+            ctx.strokeStyle = '#4a8a5a';
+            ctx.lineWidth = 2;
+            for (let col = 0; col < cols; col++) {
+                const x = col * blockW;
+                const phase = (col / cols) * Math.PI * 6 + time * 0.02;
+                const yOff = Math.sin(phase) * maxHeight;
+                const waveY = baseY + yOff;
+                ctx.fillStyle = '#5aaa6a';
+                ctx.fillRect(x, waveY - 2, blockW, 4);
+            }
+
+            requestAnimationFrame(drawWave);
+        }
 
         // ============================================================
         //  ACCELEROMETER
         // ============================================================
-        let shakeMagnitude = 0;
-
         function handleMotion(event) {
             const acc = event.accelerationIncludingGravity;
             if (!acc) return;
@@ -631,20 +756,26 @@
             shake = Math.min(shake, 15) / 15;
             shakeMagnitude = shake;
             updateUI(shake);
+            // Check for shake threshold to advance
+            if (shake > 0.25 && isStarted && !advanceLock) {
+                advanceToNext();
+            }
         }
 
         function updateUI(shake) {
             const percent = Math.round(shake * 100);
             intensityValue.textContent = percent;
-            // Fill bar with blocks (up to 20 chars)
-            const blocks = Math.round(percent / 5); // 0..20
+            const blocks = Math.round(percent / 5);
             const barText = '▰'.repeat(blocks) + '▱'.repeat(20 - blocks);
             shakeBar.textContent = barText;
             shakeBar.style.width = percent + '%';
 
             let zone = 'VOID';
             let cls = 'void';
-            if (shake < 0.2) { zone = 'VOID'; cls = 'void'; } else if (shake < 0.5) {
+            if (shake < 0.2) {
+                zone = 'VOID';
+                cls = 'void';
+            } else if (shake < 0.5) {
                 zone = 'TENSION';
                 cls = 'tension';
             } else if (shake < 0.8) {
@@ -665,7 +796,7 @@
                         if (state === 'granted') {
                             window.addEventListener('devicemotion', handleMotion);
                         } else {
-                            statusEl.textContent = 'Motion denied – shake disabled.';
+                            statusEl.textContent = 'Motion denied – use clicks/taps to advance.';
                         }
                     })
                     .catch(err => console.warn('Motion error:', err));
@@ -684,127 +815,140 @@
             return processed || 'Hello';
         }
 
-        async function speakNextSentence() {
-            if (abortFlag) {
-                abortFlag = false;
-                isSpeaking = false;
-                statusEl.textContent = '⟩ reset ⟨';
-                return;
+        async function speakSentence(text) {
+            const shake = shakeMagnitude || 0;
+            const speed = Math.min(Math.max(Math.round(72 + shake * 100), 0), 255);
+            const pitch = Math.min(Math.max(Math.round(64 + shake * 120), 0), 255);
+            const processed = preprocessText(text);
+            const sam = new SamJs({ speed, pitch, throat: 128, mouth: 128 });
+            try {
+                await sam.speak(processed);
+            } catch (err) {
+                console.warn('SAM error:', err);
+                // fallback
+                const fallback = new SamJs({ speed: 72, pitch: 64 });
+                await fallback.speak('I cannot say that, but here is a test');
             }
-            if (isPaused) return;
-            if (currentIndex >= sentences.length) {
-                textProgress.innerHTML = '<span class="current">» voyage complete «</span>';
-                isSpeaking = false;
-                statusEl.textContent = '⟩ finished ⟨';
-                return;
-            }
+        }
 
+        // ============================================================
+        //  ADVANCE LOGIC
+        // ============================================================
+        function advanceToNext() {
+            if (advanceLock) return;
+            if (!isStarted) return;
+            if (currentIndex >= sentences.length) {
+                statusEl.textContent = '⟩ voyage complete ⟨';
+                return;
+            }
+            advanceLock = true;
             const sentence = sentences[currentIndex];
+            // Update display
             const prev = sentences.slice(0, currentIndex).join(' … ');
             const next = sentences.slice(currentIndex + 1).join(' … ');
             textProgress.innerHTML =
                 `<span>${prev}</span><span class="current"> ${sentence} </span><span>${next}</span>`;
+            statusEl.textContent = `⟩ speaking (${currentIndex + 1}/${sentences.length}) ⟨`;
 
-            const shake = shakeMagnitude || 0;
-            const speed = Math.min(Math.max(Math.round(72 + shake * 100), 0), 255);
-            const pitch = Math.min(Math.max(Math.round(64 + shake * 120), 0), 255);
-
-            const processed = preprocessText(sentence);
-            const sam = new SamJs({ speed, pitch, throat: 128, mouth: 128 });
-
-            statusEl.textContent = `⟩ speaking (speed ${speed}, pitch ${pitch}) ⟨`;
-            isSpeaking = true;
-
-            try {
-                await sam.speak(processed);
-                if (!abortFlag && !isPaused) {
-                    currentIndex++;
-                    speakNextSentence();
+            // Speak
+            speakSentence(sentence).then(() => {
+                currentIndex++;
+                advanceLock = false;
+                if (currentIndex >= sentences.length) {
+                    statusEl.textContent = '⟩ finished ⟨';
+                    textProgress.innerHTML = '<span class="current">» voyage complete «</span>';
                 } else {
-                    isSpeaking = false;
+                    statusEl.textContent = `⟩ ${currentIndex + 1}/${sentences.length} – shake/tap to continue ⟨`;
+                    // Show prompt
                 }
-            } catch (err) {
-                console.warn('SAM error:', err);
-                try {
-                    const fallback = new SamJs({ speed: 72, pitch: 64 });
-                    await fallback.speak('I cannot say that, but here is a test');
-                    statusEl.textContent = '⟩ fallback used ⟨';
-                    if (!abortFlag && !isPaused) {
-                        currentIndex++;
-                        speakNextSentence();
-                    }
-                } catch (fallbackErr) {
-                    statusEl.textContent = '⟩ error – could not speak ⟨';
-                    isSpeaking = false;
-                }
-            }
+            }).catch(() => {
+                advanceLock = false;
+            });
         }
 
         // ============================================================
         //  CONTROLS
         // ============================================================
         function startReading() {
-            if (isSpeaking && !isPaused) return;
-            if (isPaused) {
-                isPaused = false;
-                pauseBtn.textContent = '[ ⏸ PAUSE ]';
-                statusEl.textContent = '⟩ resuming ⟨';
-                speakNextSentence();
-                return;
-            }
-            // fresh start
-            abortFlag = false;
+            if (isStarted) return;
+            isStarted = true;
             currentIndex = 0;
-            isPaused = false;
-            pauseBtn.textContent = '[ ⏸ PAUSE ]';
-            statusEl.textContent = '⟩ setting sail ⟨';
-            speakNextSentence();
-        }
-
-        function togglePause() {
-            if (!isSpeaking && currentIndex === 0) {
-                startReading();
-                return;
-            }
-            if (isPaused) {
-                isPaused = false;
-                pauseBtn.textContent = '[ ⏸ PAUSE ]';
-                statusEl.textContent = '⟩ resuming ⟨';
-                speakNextSentence();
-            } else {
-                isPaused = true;
-                pauseBtn.textContent = '[ ▶ RESUME ]';
-                statusEl.textContent = '⟩ paused ⟨';
-                // cannot stop current utterance, but next will not start
-            }
+            statusEl.textContent = '⟩ tap or shake to begin the next line ⟨';
+            textProgress.innerHTML = '<span class="prompt">⏎  tap or shake to begin</span>';
+            startBtn.textContent = '[ READING ]';
+            startBtn.disabled = true;
+            // Optionally speak first sentence immediately?
+            // We'll wait for user interaction.
+            // But we can auto-advance to first line on first click.
+            // We'll handle that in the advance function.
+            // Actually we want the first advance on first click/tap.
+            // We'll just set the state and wait for interaction.
+            statusEl.textContent = '⟩ tap or shake to read first line ⟨';
         }
 
         function resetReading() {
-            abortFlag = true;
-            isPaused = false;
-            isSpeaking = false;
+            isStarted = false;
             currentIndex = 0;
-            pauseBtn.textContent = '[ ⏸ PAUSE ]';
-            statusEl.textContent = '⟩ reset ⟨';
-            textProgress.innerHTML = '<span class="current">» ready to embark «</span>';
-            // allow a moment then clear flag
-            setTimeout(() => { abortFlag = false; }, 200);
+            advanceLock = false;
+            startBtn.textContent = '[ START ]';
+            startBtn.disabled = false;
+            textProgress.innerHTML = '<span class="prompt">⏎  tap or shake to begin</span>';
+            statusEl.textContent = '⟩ press START or tap/shake to begin ⟨';
         }
+
+        // ============================================================
+        //  CLICK/TAP HANDLER (desktop support)
+        // ============================================================
+        document.addEventListener('click', (e) => {
+            // Ignore clicks on buttons
+            if (e.target.closest('button')) return;
+            if (!isStarted) {
+                startReading();
+                // We'll let the first click also advance
+                // But we need to make sure we don't double advance
+                if (!advanceLock && isStarted && currentIndex < sentences.length) {
+                    advanceToNext();
+                }
+                return;
+            }
+            if (currentIndex >= sentences.length) {
+                // maybe restart? but we'll just ignore
+                return;
+            }
+            if (!advanceLock) {
+                advanceToNext();
+            }
+        });
 
         // ============================================================
         //  INIT
         // ============================================================
         window.addEventListener('load', () => {
-            // request motion on first user tap
-            document.addEventListener('click', requestMotionPermission, { once: true });
+            resizeCanvas();
+            // start wave animation
+            requestAnimationFrame(drawWave);
 
-            // initial UI
+            // Request motion permission
+            requestMotionPermission();
+
+            // Set initial UI
             updateUI(0);
-            statusEl.textContent = '⟩ press START to set sail ⟨';
+            statusEl.textContent = '⟩ press START or tap/shake to begin ⟨';
 
-            startBtn.addEventListener('click', startReading);
-            pauseBtn.addEventListener('click', togglePause);
-            resetBtn.addEventListener('click', resetReading);
+            startBtn.addEventListener('click', (e) => {
+                e.stopPropagation();
+                if (!isStarted) {
+                    startReading();
+                    // Immediately advance to first line
+                    if (!advanceLock && currentIndex < sentences.length) {
+                        advanceToNext();
+                    }
+                }
+            });
+            resetBtn.addEventListener('click', (e) => {
+                e.stopPropagation();
+                resetReading();
+            });
         });
     </script>
 </body>
