@@ -1,0 +1,812 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <title>Odyssey Reader – ASCII Trireme</title>
+    <style>
+        /* ==========================================================
+               RETRO TERMINAL / ANCIENT BOAT THEME
+               ========================================================== */
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            background: #0a0f0a;
+            font-family: "Courier New", Courier, monospace;
+            padding: 16px;
+            display: flex;
+            justify-content: center;
+            min-height: 100vh;
+            margin: 0;
+            color: #b8c8a0;
+        }
+
+        .container {
+            max-width: 720px;
+            width: 100%;
+            background: #0f1a0f;
+            border: 2px solid #3a5a3a;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 0 20px #0a2a0a;
+        }
+
+        /* ASCII art header */
+        .ascii-art {
+            font-size: 11px;
+            line-height: 1.2;
+            color: #5a8a5a;
+            text-align: center;
+            white-space: pre;
+            margin-bottom: 8px;
+            letter-spacing: 0;
+        }
+
+        .title {
+            font-size: 1.8rem;
+            font-weight: bold;
+            text-align: center;
+            color: #c8d8a0;
+            text-shadow: 0 0 8px #3a7a3a;
+            letter-spacing: 6px;
+            margin: 4px 0 8px 0;
+        }
+
+        .subtitle {
+            text-align: center;
+            color: #6a8a5a;
+            font-size: 0.9rem;
+            margin-bottom: 16px;
+            border-bottom: 1px dashed #3a5a3a;
+            padding-bottom: 8px;
+        }
+
+        /* status panel */
+        .panel {
+            background: #0a140a;
+            border: 1px solid #2a4a2a;
+            padding: 12px 16px;
+            margin: 12px 0;
+        }
+
+        .panel-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 8px;
+        }
+
+        .label {
+            color: #6a8a5a;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            font-size: 0.8rem;
+        }
+
+        .value {
+            font-size: 2.2rem;
+            font-weight: bold;
+            color: #c8d8a0;
+            min-width: 60px;
+            text-align: right;
+        }
+
+        /* shake bar – made of ASCII blocks */
+        .bar-outer {
+            width: 100%;
+            height: 20px;
+            background: #0a1a0a;
+            border: 1px solid #2a4a2a;
+            margin: 4px 0 8px 0;
+            position: relative;
+            font-size: 14px;
+            line-height: 20px;
+            color: #5a8a5a;
+            letter-spacing: 2px;
+            overflow: hidden;
+        }
+
+        .bar-inner {
+            height: 100%;
+            background: #2a6a2a;
+            color: #a0d0a0;
+            text-align: right;
+            padding-right: 4px;
+            white-space: nowrap;
+            transition: width 0.15s;
+            font-weight: bold;
+        }
+
+        /* zone badge – ASCII brackets */
+        .zone {
+            display: inline-block;
+            padding: 2px 12px;
+            border: 1px solid #4a6a4a;
+            font-weight: bold;
+            letter-spacing: 2px;
+            background: #0a1a0a;
+            margin-top: 4px;
+            color: #7a9a7a;
+        }
+
+        .zone.void {
+            color: #4a6a4a;
+            border-color: #2a3a2a;
+        }
+
+        .zone.tension {
+            color: #c8a050;
+            border-color: #7a6a3a;
+        }
+
+        .zone.approach {
+            color: #d08040;
+            border-color: #8a5a2a;
+        }
+
+        .zone.emergency {
+            color: #d05050;
+            border-color: #8a3a3a;
+            animation: pulse 0.8s infinite alternate;
+        }
+
+        @keyframes pulse {
+            0% {
+                opacity: 0.7;
+            }
+
+            100% {
+                opacity: 1;
+            }
+        }
+
+        /* text progress */
+        .scroll {
+            background: #0a140a;
+            border: 1px solid #1a3a1a;
+            padding: 8px 12px;
+            max-height: 150px;
+            overflow-y: auto;
+            font-size: 0.9rem;
+            line-height: 1.5;
+            color: #8aaa7a;
+            margin: 12px 0;
+        }
+
+        .scroll .current {
+            color: #d8e8b0;
+            background: #1a3a1a;
+            padding: 0 4px;
+            font-weight: bold;
+        }
+
+        /* controls – bracketed buttons */
+        .controls {
+            display: flex;
+            gap: 12px;
+            flex-wrap: wrap;
+            justify-content: center;
+            margin: 12px 0 6px 0;
+        }
+
+        .btn {
+            background: transparent;
+            border: 1px solid #3a5a3a;
+            color: #b8c8a0;
+            font-family: inherit;
+            font-size: 1.1rem;
+            padding: 6px 18px;
+            cursor: pointer;
+            transition: 0.2s;
+            letter-spacing: 2px;
+            background: #0a1a0a;
+        }
+
+        .btn:hover {
+            background: #1a3a1a;
+            border-color: #6a8a5a;
+            color: #d8e8b0;
+        }
+
+        .btn:active {
+            transform: scale(0.95);
+        }
+
+        .btn.primary {
+            border-color: #4a7a4a;
+            color: #8aba7a;
+        }
+
+        .btn.primary:hover {
+            background: #1a3a1a;
+            border-color: #6aaa5a;
+        }
+
+        .btn.danger {
+            border-color: #7a4a4a;
+            color: #c07a7a;
+        }
+
+        .btn.danger:hover {
+            background: #2a1a1a;
+            border-color: #aa5a5a;
+        }
+
+        .status-line {
+            text-align: center;
+            color: #6a8a5a;
+            font-size: 0.8rem;
+            margin-top: 6px;
+            border-top: 1px dashed #1a3a1a;
+            padding-top: 8px;
+        }
+
+        .footer {
+            text-align: center;
+            color: #3a5a3a;
+            font-size: 0.7rem;
+            margin-top: 12px;
+        }
+
+        .footer a {
+            color: #5a7a5a;
+        }
+
+        /* scrollbar */
+        .scroll::-webkit-scrollbar {
+            width: 6px;
+            background: #0a1a0a;
+        }
+
+        .scroll::-webkit-scrollbar-thumb {
+            background: #2a4a2a;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="container">
+
+        <!-- ===== ASCII ART ===== -->
+        <pre class="ascii-art">
+       ____
+      /   _ \      ⚓
+     |  / \_|     / \
+     | |   _     |   |    ~ ~ ~
+     | \__/ |    |   |   /   \
+     \______/     \_/   |  ⛵  |
+    </pre>
+
+        <div class="title">ODYSSEY</div>
+        <div class="subtitle">◈ speak with SAM ◈ shake to modulate ◈</div>
+
+        <!-- ===== SHAKE PANEL ===== -->
+        <div class="panel">
+            <div class="panel-row">
+                <span class="label">⚡ SHAKE</span>
+                <span class="value" id="intensityValue">0</span>
+            </div>
+            <div class="bar-outer">
+                <div class="bar-inner" id="shakeBar" style="width:0%;">▰▰▰▰▰</div>
+            </div>
+            <div style="display:flex; justify-content:center; margin-top:4px;">
+                <span class="zone" id="zoneBadge">VOID</span>
+            </div>
+        </div>
+
+        <!-- ===== TEXT PROGRESS ===== -->
+        <div class="scroll" id="textProgress">
+            <span class="current">» ready to embark «</span>
+        </div>
+
+        <!-- ===== CONTROLS ===== -->
+        <div class="controls">
+            <button class="btn primary" id="startBtn">[ ▶ START ]</button>
+            <button class="btn danger" id="pauseBtn">[ ⏸ PAUSE ]</button>
+            <button class="btn" id="resetBtn">[ ↺ RESTART ]</button>
+        </div>
+
+        <div class="status-line" id="status">⟩ press START to set sail ⟨</div>
+        <div class="footer">⛵ SAM speech engine · shake your phone</div>
+    </div>
+
+    <!-- ============================================================ -->
+    <!--  SAM library – ES module import                             -->
+    <!-- ============================================================ -->
+    <script type="importmap">
+        {
+            "imports": {
+                "sam-js": "https://cdn.jsdelivr.net/npm/sam-js@0.3.1/+esm"
+            }
+        }
+    </script>
+
+    <script type="module">
+        // ============================================================
+        //  IMPORTS
+        // ============================================================
+        import SamJs from 'sam-js';
+
+        // ============================================================
+        //  FULL ODYSSEY TEXT
+        // ============================================================
+        const odysseyText =
+            "The man, O Muse, inform, that many a way\n" +
+            "Wound with his wisdom to his wished stay;\n" +
+            "That wander'd wondrous far, when he the town\n" +
+            "Of sacred Troy had sack'd and shiver'd down;\n" +
+            "The cities of a world of nations,\n" +
+            "With all their manners, minds, and fashions,\n" +
+            "He saw and knew; at sea felt many woes,\n" +
+            "Much care sustain'd, to save from overthrows\n" +
+            "Himself and friends in their retreat for home;\n" +
+            "But so their fates he could not overcome,\n" +
+            "Though much he thirsted it. O men unwise,\n" +
+            "They perish'd by their own impieties!\n" +
+            "That in their hunger's rapine would not shun\n" +
+            "The oxen of the lofty-going Sun,\n" +
+            "Who therefore from their eyes the day bereft\n" +
+            "Of safe return. These acts, in some part left,\n" +
+            "Tell us, as others, deified Seed of Jove.\n" +
+            "Now all the rest that austere death outstrove\n" +
+            "At Troy's long siege at home safe anchor'd are,\n" +
+            "Free from the malice both of sea and war;\n" +
+            "Only Ulysses is denied access\n" +
+            "To wife and home. The grace of Goddesses,\n" +
+            "The rev'rend nymph Calypso, did detain\n" +
+            "Him in her caves, past all the race of men\n" +
+            "Enflam'd to make him her lov'd lord and spouse.\n" +
+            "And when the Gods had destin'd that his house,\n" +
+            "Which Ithaca on her rough bosom bears,\n" +
+            "(The point of time wrought out by ambient years)\n" +
+            "Should be his haven, Contention still extends\n" +
+            "Her envy to him, ev'n amongst his friends.\n" +
+            "All Gods took pity on him; only he,\n" +
+            "That girds earth in the cincture of the sea,\n" +
+            "Divine Ulysses ever did envy,\n" +
+            "And made the fix'd port of his birth to fly.\n" +
+            "But he himself solemniz'd a retreat\n" +
+            "To th' Æthiops, far dissunder'd in their seat,\n" +
+            "(In two parts parted, at the sun's descent,\n" +
+            "And underneath his golden orient,\n" +
+            "The first and last of men) t' enjoy their feast\n" +
+            "Of bulls and lambs, in hecatombs addrest;\n" +
+            "At which he sat, giv'n over to delight.\n" +
+            "The other Gods in heav'n's supremest height\n" +
+            "Were all in council met; to whom began\n" +
+            "The mighty Father both of God and man\n" +
+            "Discourse, inducing matter that inclin'd\n" +
+            "To wise Ulysses, calling to his mind\n" +
+            "Faultful Ægisthus, who to death was done\n" +
+            "By young Orestes, Agamemnon's son.\n" +
+            "His memory to the Immortals then\n" +
+            "Mov'd Jove thus deeply: \"O how falsely men\n" +
+            "Accuse us Gods as authors of their ill!\n" +
+            "When, by the bane their own bad lives instill,\n" +
+            "They suffer all the mis'ries of their states,\n" +
+            "Past our inflictions, and beyond their fates.\n" +
+            "As now Ægisthus, past his fate, did wed\n" +
+            "The wife of Agamemnon, and (in dread\n" +
+            "To suffer death himself) to shun his ill,\n" +
+            "Incurr'd it by the loose bent of his will,\n" +
+            "In slaughtering Atrides in retreat.\n" +
+            "Which we foretold him would so hardly set\n" +
+            "To his murd'rous purpose, sending Mercury\n" +
+            "That slaughter'd Argus, our consid'rate spy,\n" +
+            "To give him this charge: 'Do not wed his wife,\n" +
+            "Nor murder him; for thou shalt buy his life\n" +
+            "With ransom of thine own, impos'd on thee\n" +
+            "By his Orestes, when in him shall be\n" +
+            "Atrides'-self renew'd, and but the prime\n" +
+            "Of youth's spring put abroad, in thirst to climb\n" +
+            "His haughty father's throne by his high acts.'\n" +
+            "These words of Hermes wrought not into facts\n" +
+            "Ægisthus' powers; good counsel he despis'd,\n" +
+            "And to that good his ill is sacrific'd.\"\n" +
+            "Pallas, whose eyes did sparkle like the skies,\n" +
+            "Answer'd: \"O Sire! Supreme of Deities,\n" +
+            "Ægisthus pass'd his fate, and had desert\n" +
+            "To warrant our infliction; and convert\n" +
+            "May all the pains such impious men inflict\n" +
+            "On innocent suff'rers to revenge as strict,\n" +
+            "Their own hearts eating. But, that Ithacus,\n" +
+            "Thus never meriting, should suffer thus,\n" +
+            "I deeply suffer. His more pious mind\n" +
+            "Divides him from these fortunes. Though unkind\n" +
+            "Is piety to him, giving him a fate\n" +
+            "More suff'ring than the most unfortunate,\n" +
+            "So long kept friendless in a sea-girt soil,\n" +
+            "Where the sea's navel is a sylvan isle,\n" +
+            "In which the Goddess dwells that doth derive\n" +
+            "Her birth from Atlas, who of all alive\n" +
+            "The motion and the fashion doth command\n" +
+            "With his wise mind, whose forces understand\n" +
+            "The inmost deeps and gulfs of all the seas,\n" +
+            "Who (for his skill of things superior) stays\n" +
+            "The two steep columns that prop earth and heav'n.\n" +
+            "His daughter 'tis, who holds this homeless-driv'n\n" +
+            "Still mourning with her; evermore profuse\n" +
+            "Of soft and winning speeches, that abuse\n" +
+            "And make so languishingly, and possest\n" +
+            "With so remiss a mind her loved guest,\n" +
+            "Manage the action of his way for home.\n" +
+            "Where he, though in affection overcome,\n" +
+            "In judgment yet more longs to show his hopes\n" +
+            "His country's smoke leap from her chimney tops,\n" +
+            "And death asks in her arms. Yet never shall\n" +
+            "Thy lov'd heart be converted on his thrall,\n" +
+            "Austere Olympius. Did not ever he,\n" +
+            "In ample Troy, thy altars gratify,\n" +
+            "And Grecians' fleet make in thy off'rings swim?\n" +
+            "Jove, why still then burns thy wrath to him?\"\n" +
+            "The Cloud-assembler answer'd: \"What words fly,\n" +
+            "Bold daughter, from thy pale of ivory?\n" +
+            "As if I ever could cast from my care\n" +
+            "Divine Ulysses, who exceeds so far\n" +
+            "All men in wisdom, and so oft hath giv'n\n" +
+            "To all th' Immortals thron'd in ample heav'n\n" +
+            "So great and sacred gifts? But his decrees,\n" +
+            "That holds the earth in with his nimble knees,\n" +
+            "Stand to Ulysses' longings so extreme,\n" +
+            "For taking from the God-foe Polypheme\n" +
+            "His only eye; a Cyclop, that excell'd\n" +
+            "All other Cyclops, with whose burden swell'd\n" +
+            "The nymph Thoosa, the divine increase\n" +
+            "Of Phorcys' seed, a great God of the seas.\n" +
+            "She mix'd with Neptune in his hollow caves,\n" +
+            "And bore this Cyclop to that God of waves.\n" +
+            "For whose lost eye, th' Earth-shaker did not kill\n" +
+            "Erring Ulysses, but reserves him still\n" +
+            "In life for more death. But use we our pow'rs,\n" +
+            "And round about us cast these cares of ours,\n" +
+            "All to discover how we may prefer\n" +
+            "His wish'd retreat, and Neptune make forbear\n" +
+            "His stern eye to him, since no one God can,\n" +
+            "In spite of all, prevail, but 'gainst a man.\"\n" +
+            "To this, this answer made the grey-eyed Maid:\n" +
+            "\"Supreme of rulers, since so well apaid\n" +
+            "The blesséd Gods are all then, now, in thee,\n" +
+            "To limit wise Ulysses' misery,\n" +
+            "And that you speak as you referr'd to me\n" +
+            "Prescription for the means, in this sort be\n" +
+            "Their sacred order: Let us now address\n" +
+            "With utmost speed our swift Argicides,\n" +
+            "To tell the nymph that bears the golden tress\n" +
+            "In th' isle Ogygia, that 'tis our will\n" +
+            "She should not stay our lov'd Ulysses still,\n" +
+            "But suffer his return; and then will I\n" +
+            "To Ithaca, to make his son apply\n" +
+            "His sire's inquest the more; infusing force\n" +
+            "Into his soul, to summon the concourse\n" +
+            "Of curl'd-head Greeks to council, and deter\n" +
+            "Each wooer, that hath been the slaughterer\n" +
+            "Of his fat sheep and crooked-headed beeves.\n" +
+            "From more wrong to his mother, and their leaves\n" +
+            "Take in such terms as fit deserts so great.\n" +
+            "To Sparta then, and Pylos, where doth beat\n" +
+            "Bright Amathus, the flood, and epithet\n" +
+            "To all that kingdom, my advice shall send\n" +
+            "The spirit-advanc'd Prince, to the pious end\n" +
+            "Of seeking his lost father, if he may\n" +
+            "Receive report from Fame where rests his stay;\n" +
+            "And make, besides, his own successive worth\n" +
+            "Known to the world, and set in action forth.\"\n" +
+            "This said, her wing'd shoes to her feet she tied,\n" +
+            "Form'd all of gold, and all eternified,\n" +
+            "That on the round earth or the sea sustain'd\n" +
+            "Her ravish'd substance swift as gusts of wind.\n" +
+            "Then took she her strong lance with steel made keen,\n" +
+            "Great, massy, active, that whole hosts of men,\n" +
+            "Though all heroës, conquers, if her ire\n" +
+            "Their wrongs inflame, back'd by so great a Sire.\n" +
+            "Down from Olympus' tops she headlong div'd,\n" +
+            "And swift as thought in Ithaca arriv'd,\n" +
+            "Close at Ulysses' gates; in whose first court\n" +
+            "She made her stand, and, for her breast's support,\n" +
+            "Lean'd on her iron lance; her form imprest\n" +
+            "With Mentas' likeness, come as being a guest.\n" +
+            "There found she those proud wooers, that were then\n" +
+            "Set on those ox-hides that themselves had slain,\n" +
+            "Before the gates, and all at dice were playing.\n" +
+            "To them the heralds, and the rest obeying,\n" +
+            "Fill'd wine and water; some, still as they play'd,\n" +
+            "And some, for solemn supper's state, purvey'd,\n" +
+            "With porous sponges cleansing tables, serv'd\n" +
+            "With much rich feast; of which to all they kerv'd.\n" +
+            "God-like Telemachus amongst them sat,\n" +
+            "Griev'd much in mind; and in his heart begat\n" +
+            "All representment of his absent sire,\n" +
+            "How, come from far-off parts, his spirits would fire\n" +
+            "With those proud wooers' sight, with slaughter parting\n" +
+            "Their bold concourse, and to himself converting\n" +
+            "The honours they usurp'd, his own commanding.\n" +
+            "In this discourse, he first saw Pallas standing,\n" +
+            "Unbidden entry; up rose, and addrest\n" +
+            "His pace right to her, angry that a guest\n" +
+            "Should stand so long at gate; and, coming near,\n" +
+            "Her right hand took, took in his own her spear,\n" +
+            "And thus saluted: \"Grace to your repair,\n" +
+            "Fair guest, your welcome shall be likewise fair.\n" +
+            "Enter, and, cheer'd with feast, disclose th' intent\n" +
+            "That caus'd your coming.\" This said, first he went,\n" +
+            "And Pallas follow'd. To a room they came,\n" +
+            "Steep, and of state; the jav'lin of the Dame\n" +
+            "He set against a pillar vast and high,\n" +
+            "Amidst a large and bright-kept armory,\n" +
+            "Which was, besides, with woods of lances grac'd\n" +
+            "Of his grave father's. In a throne he plac'd\n" +
+            "The man-turn'd Goddess, under which was spread\n" +
+            "A carpet, rich and of deviceful thread;\n" +
+            "A footstool staying her feet; and by her chair\n" +
+            "Another seat (all garnish'd wondrous fair,\n" +
+            "To rest or sleep on in the day) he set,\n" +
+            "Far from the prease of wooers, lest at meat\n" +
+            "The noise they still made might offend his guest,\n" +
+            "Disturbing him at banquet or at rest,\n" +
+            "Ev'n to his combat with that pride of theirs,\n" +
+            "That kept no noble form in their affairs.\n" +
+            "And these he set far from them, much the rather\n" +
+            "To question freely of his absent father.\n" +
+            "A table fairly-polish'd then was spread,\n" +
+            "On which a rev'rend officer set bread,\n" +
+            "And other servitors all sorts of meat\n" +
+            "(Salads, and flesh, such as their haste could get)\n" +
+            "Serv'd with observance in. And then the sewer\n" +
+            "Pour'd water from a great and golden ewer,\n" +
+            "That from their hands t' a silver caldron ran.\n" +
+            "Both wash'd, and seated close, the voiceful man\n" +
+            "Fetch'd cups of gold, and set by them, and round\n" +
+            "Those cups with wine with all endeavour crown'd.\n" +
+            "Then rush'd in the rude wooers, themselves plac'd;\n" +
+            "The heralds water gave; the maids in haste\n" +
+            "Serv'd bread from baskets. When, of all prepar'd\n" +
+            "And set before them, the bold wooers shar'd,\n" +
+            "Their pages plying their cups past the rest.\n" +
+            "But lusty wooers must do more than feast;\n" +
+            "For now, their hungers and their thirsts allay'd,\n" +
+            "They call'd for songs and dances; those, they said,\n" +
+            "Were th' ornaments of feast. The herald straight\n" +
+            "A harp, carv'd full of artificial sleight,\n" +
+            "Thrust into Phemius', a learn'd singer's, hand,\n" +
+            "Who, till he much was urg'd, on terms did stand,\n" +
+            "But, after, play'd and sung with all his art.\n" +
+            "Telemachus to Pallas then (apart,\n" +
+            "His ear inclining close, that none might hear)\n" +
+            "In this sort said: \"My guest, exceeding dear,\n" +
+            "Will you not sit incens'd with what I say?\n" +
+            "These are the cares these men take; feast and play.\n" +
+            "Which eas'ly they may use, because they eat,\n" +
+            "Free and unpunish'd, of another's meat;\n" +
+            "And of a man's, whose white bones wasting lie\n" +
+            "In some far region; with th' incessancy\n" +
+            "Of show'rs pour'd down upon them, lying ashore,\n" +
+            "Or in the seas wash'd nak'd. Who, if he wore\n" +
+            "Those bones with flesh and life and industry,\n" +
+            "And these might here in Ithaca set eye\n" +
+            "On him ...";
+
+        // ============================================================
+        //  SPLIT INTO SENTENCES
+        // ============================================================
+        function splitSentences(text) {
+            return text.split(/(?<=[.!?])\s+|\n/).filter(s => s.trim().length > 0);
+        }
+
+        const sentences = splitSentences(odysseyText);
+        let currentIndex = 0;
+        let isPaused = false;
+        let isSpeaking = false;
+        let currentSam = null;
+        let abortFlag = false;
+
+        // ============================================================
+        //  DOM REFS
+        // ============================================================
+        const intensityValue = document.getElementById('intensityValue');
+        const shakeBar = document.getElementById('shakeBar');
+        const zoneBadge = document.getElementById('zoneBadge');
+        const textProgress = document.getElementById('textProgress');
+        const statusEl = document.getElementById('status');
+        const startBtn = document.getElementById('startBtn');
+        const pauseBtn = document.getElementById('pauseBtn');
+        const resetBtn = document.getElementById('resetBtn');
+
+        // ============================================================
+        //  ACCELEROMETER
+        // ============================================================
+        let shakeMagnitude = 0;
+
+        function handleMotion(event) {
+            const acc = event.accelerationIncludingGravity;
+            if (!acc) return;
+            const x = acc.x || 0;
+            const y = acc.y || 0;
+            const z = acc.z || 0;
+            const magnitude = Math.sqrt(x * x + y * y + z * z);
+            let shake = Math.abs(magnitude - 9.8);
+            shake = Math.min(shake, 15) / 15;
+            shakeMagnitude = shake;
+            updateUI(shake);
+        }
+
+        function updateUI(shake) {
+            const percent = Math.round(shake * 100);
+            intensityValue.textContent = percent;
+            // Fill bar with blocks (up to 20 chars)
+            const blocks = Math.round(percent / 5); // 0..20
+            const barText = '▰'.repeat(blocks) + '▱'.repeat(20 - blocks);
+            shakeBar.textContent = barText;
+            shakeBar.style.width = percent + '%';
+
+            let zone = 'VOID';
+            let cls = 'void';
+            if (shake < 0.2) { zone = 'VOID'; cls = 'void'; } else if (shake < 0.5) {
+                zone = 'TENSION';
+                cls = 'tension';
+            } else if (shake < 0.8) {
+                zone = 'APPROACH';
+                cls = 'approach';
+            } else {
+                zone = 'EMERGENCY';
+                cls = 'emergency';
+            }
+            zoneBadge.textContent = '⟪ ' + zone + ' ⟫';
+            zoneBadge.className = 'zone ' + cls;
+        }
+
+        function requestMotionPermission() {
+            if (typeof DeviceMotionEvent !== 'undefined' && DeviceMotionEvent.requestPermission === 'function') {
+                DeviceMotionEvent.requestPermission()
+                    .then(state => {
+                        if (state === 'granted') {
+                            window.addEventListener('devicemotion', handleMotion);
+                        } else {
+                            statusEl.textContent = 'Motion denied – shake disabled.';
+                        }
+                    })
+                    .catch(err => console.warn('Motion error:', err));
+            } else {
+                window.addEventListener('devicemotion', handleMotion);
+            }
+        }
+
+        // ============================================================
+        //  SAM SPEECH
+        // ============================================================
+        function preprocessText(text) {
+            let processed = text.replace(/\d+/g, (match) => match.split('').join(' '));
+            processed = processed.replace(/[^a-zA-Z0-9 ]/g, ' ');
+            processed = processed.replace(/\s+/g, ' ').trim();
+            return processed || 'Hello';
+        }
+
+        async function speakNextSentence() {
+            if (abortFlag) {
+                abortFlag = false;
+                isSpeaking = false;
+                statusEl.textContent = '⟩ reset ⟨';
+                return;
+            }
+            if (isPaused) return;
+            if (currentIndex >= sentences.length) {
+                textProgress.innerHTML = '<span class="current">» voyage complete «</span>';
+                isSpeaking = false;
+                statusEl.textContent = '⟩ finished ⟨';
+                return;
+            }
+
+            const sentence = sentences[currentIndex];
+            const prev = sentences.slice(0, currentIndex).join(' … ');
+            const next = sentences.slice(currentIndex + 1).join(' … ');
+            textProgress.innerHTML =
+                `<span>${prev}</span><span class="current"> ${sentence} </span><span>${next}</span>`;
+
+            const shake = shakeMagnitude || 0;
+            const speed = Math.min(Math.max(Math.round(72 + shake * 100), 0), 255);
+            const pitch = Math.min(Math.max(Math.round(64 + shake * 120), 0), 255);
+
+            const processed = preprocessText(sentence);
+            const sam = new SamJs({ speed, pitch, throat: 128, mouth: 128 });
+
+            statusEl.textContent = `⟩ speaking (speed ${speed}, pitch ${pitch}) ⟨`;
+            isSpeaking = true;
+
+            try {
+                await sam.speak(processed);
+                if (!abortFlag && !isPaused) {
+                    currentIndex++;
+                    speakNextSentence();
+                } else {
+                    isSpeaking = false;
+                }
+            } catch (err) {
+                console.warn('SAM error:', err);
+                try {
+                    const fallback = new SamJs({ speed: 72, pitch: 64 });
+                    await fallback.speak('I cannot say that, but here is a test');
+                    statusEl.textContent = '⟩ fallback used ⟨';
+                    if (!abortFlag && !isPaused) {
+                        currentIndex++;
+                        speakNextSentence();
+                    }
+                } catch (fallbackErr) {
+                    statusEl.textContent = '⟩ error – could not speak ⟨';
+                    isSpeaking = false;
+                }
+            }
+        }
+
+        // ============================================================
+        //  CONTROLS
+        // ============================================================
+        function startReading() {
+            if (isSpeaking && !isPaused) return;
+            if (isPaused) {
+                isPaused = false;
+                pauseBtn.textContent = '[ ⏸ PAUSE ]';
+                statusEl.textContent = '⟩ resuming ⟨';
+                speakNextSentence();
+                return;
+            }
+            // fresh start
+            abortFlag = false;
+            currentIndex = 0;
+            isPaused = false;
+            pauseBtn.textContent = '[ ⏸ PAUSE ]';
+            statusEl.textContent = '⟩ setting sail ⟨';
+            speakNextSentence();
+        }
+
+        function togglePause() {
+            if (!isSpeaking && currentIndex === 0) {
+                startReading();
+                return;
+            }
+            if (isPaused) {
+                isPaused = false;
+                pauseBtn.textContent = '[ ⏸ PAUSE ]';
+                statusEl.textContent = '⟩ resuming ⟨';
+                speakNextSentence();
+            } else {
+                isPaused = true;
+                pauseBtn.textContent = '[ ▶ RESUME ]';
+                statusEl.textContent = '⟩ paused ⟨';
+                // cannot stop current utterance, but next will not start
+            }
+        }
+
+        function resetReading() {
+            abortFlag = true;
+            isPaused = false;
+            isSpeaking = false;
+            currentIndex = 0;
+            pauseBtn.textContent = '[ ⏸ PAUSE ]';
+            statusEl.textContent = '⟩ reset ⟨';
+            textProgress.innerHTML = '<span class="current">» ready to embark «</span>';
+            // allow a moment then clear flag
+            setTimeout(() => { abortFlag = false; }, 200);
+        }
+
+        // ============================================================
+        //  INIT
+        // ============================================================
+        window.addEventListener('load', () => {
+            // request motion on first user tap
+            document.addEventListener('click', requestMotionPermission, { once: true });
+
+            // initial UI
+            updateUI(0);
+            statusEl.textContent = '⟩ press START to set sail ⟨';
+
+            startBtn.addEventListener('click', startReading);
+            pauseBtn.addEventListener('click', togglePause);
+            resetBtn.addEventListener('click', resetReading);
+        });
+    </script>
+</body>
+
+</html>
