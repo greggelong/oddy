@@ -803,6 +803,7 @@
             e.preventDefault();
             const touch = e.touches[0];
             if (touch) zoomAt(touch.clientX, touch.clientY);
+            clickArea.click();
         }, { passive: false });
 
         window.addEventListener('resize', resizeCanvas);
