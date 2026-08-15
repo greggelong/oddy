@@ -4,11 +4,9 @@
 <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
-    <title>Odyssey – Wave & Shake</title>
+    <title>Burning Ship · Odyssey Reader</title>
     <style>
-        /* ============================================================
-               RETRO TERMINAL STYLE – MOBILE FIRST
-               ============================================================ */
+        /* same styles – unchanged */
         * {
             box-sizing: border-box;
             margin: 0;
@@ -38,16 +36,6 @@
             box-shadow: 0 0 20px #0a2a0a;
         }
 
-        /* ---- ASCII header – scales with viewport ---- */
-        .ascii-art {
-            font-size: clamp(6px, 1.8vw, 11px);
-            line-height: 1.3;
-            color: #5a8a5a;
-            text-align: center;
-            white-space: pre;
-            margin-bottom: 4px;
-        }
-
         .title {
             font-size: clamp(1.4rem, 5.5vw, 2.4rem);
             font-weight: bold;
@@ -67,19 +55,19 @@
             padding-bottom: 6px;
         }
 
-        /* ---- Wave canvas ---- */
-        .wave-container {
+        .fractal-container {
             background: #081008;
             border: 1px solid #2a4a2a;
             margin: 6px 0 12px 0;
             position: relative;
             width: 100%;
-            aspect-ratio: 16 / 6;
+            aspect-ratio: 1 / 1;
             image-rendering: pixelated;
             image-rendering: crisp-edges;
+            cursor: crosshair;
         }
 
-        #waveCanvas {
+        #fractalCanvas {
             display: block;
             width: 100%;
             height: 100%;
@@ -88,11 +76,27 @@
             image-rendering: crisp-edges;
         }
 
-        /* ---- Shake Panel – bigger text & padding ---- */
+        .info-panel {
+            background: #0a140a;
+            border: 1px solid #2a4a2a;
+            padding: 6px 12px;
+            margin: 6px 0 10px 0;
+            display: flex;
+            justify-content: space-between;
+            flex-wrap: wrap;
+            gap: 4px;
+            font-size: clamp(0.7rem, 1.8vw, 0.9rem);
+            color: #6a8a5a;
+        }
+
+        .info-panel span {
+            color: #b8c8a0;
+        }
+
         .panel {
             background: #0a140a;
             border: 1px solid #2a4a2a;
-            padding: 10px 14px;
+            padding: 8px 14px;
             margin: 8px 0;
         }
 
@@ -186,7 +190,6 @@
             }
         }
 
-        /* ---- Text Progress – bigger text, more padding ---- */
         .scroll {
             background: #0a140a;
             border: 1px solid #1a3a1a;
@@ -211,7 +214,6 @@
             font-style: italic;
         }
 
-        /* ---- Controls – big, easy buttons ---- */
         .controls {
             display: flex;
             gap: 12px;
@@ -256,16 +258,6 @@
             border-color: #6aaa5a;
         }
 
-        .btn.danger {
-            border-color: #7a4a4a;
-            color: #c07a7a;
-        }
-
-        .btn.danger:hover {
-            background: #2a1a1a;
-            border-color: #aa5a5a;
-        }
-
         .btn:disabled {
             opacity: 0.5;
             cursor: not-allowed;
@@ -288,24 +280,6 @@
             margin-top: 10px;
         }
 
-        .click-hint {
-            color: #5a7a5a;
-            animation: blink 1.2s infinite;
-            font-size: clamp(0.75rem, 1.8vw, 0.9rem);
-        }
-
-        @keyframes blink {
-
-            0%,
-            100% {
-                opacity: 0.4;
-            }
-
-            50% {
-                opacity: 1;
-            }
-        }
-
         .scroll::-webkit-scrollbar {
             width: 6px;
             background: #0a1a0a;
@@ -316,7 +290,6 @@
             border-radius: 3px;
         }
 
-        /* ---- click area covers whole container ---- */
         .click-area {
             cursor: pointer;
         }
@@ -325,37 +298,19 @@
 
 <body>
     <div class="container click-area" id="clickArea">
+        <div class="title">⚓ BURNING SHIP</div>
+        <div class="subtitle">◈ zoom with click/tap ◈ Odyssey speaks ◈</div>
 
-        <!-- ASCII trireme -->
-        <pre class="ascii-art">
-                                  |
-                             -----+-----
-                            |###########|
-                            |###########|
-                            |###########|
-                       _____|_____ 
-                     /      |      \
-                    /       |       \
-                            |
-      @>.                   |
-     / )_______________________________________________________________
-    /_/__________________________________________________________      `\
-    \ \__________________________________________________________\______/
-     \_\__\__\__\__\__\__\__\__\__\__\__\__\__\__\__\__\__\__\__/
-          \\  \\  \\  \\  \\  \\  \\  \\  \\  \\  \\  \\
-           \\  \\  \\  \\  \\  \\  \\  \\  \\  \\  \\  \\
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-</pre>
-
-        <div class="title">ODYSSEY</div>
-        <div class="subtitle">◈ shake / tap to advance ◈ SAM speaks ◈</div>
-
-        <!-- ===== WAVE CANVAS ===== -->
-        <div class="wave-container">
-            <canvas id="waveCanvas"></canvas>
+        <div class="fractal-container">
+            <canvas id="fractalCanvas"></canvas>
         </div>
 
-        <!-- ===== SHAKE PANEL ===== -->
+        <div class="info-panel">
+            <span>📐 zoom: <span id="zoomLevel">1.00</span>x</span>
+            <span>📍 center: <span id="centerCoords">0.00, 0.00</span></span>
+            <span>⚙️ iterations: <span id="iterCount">100</span></span>
+        </div>
+
         <div class="panel">
             <div class="panel-row">
                 <span class="label">⚡ SHAKE</span>
@@ -369,24 +324,19 @@
             </div>
         </div>
 
-        <!-- ===== TEXT PROGRESS ===== -->
         <div class="scroll" id="textProgress">
             <span class="prompt">⏎ tap or shake to begin</span>
         </div>
 
-        <!-- ===== CONTROLS ===== -->
         <div class="controls">
             <button class="btn primary" id="startBtn">[ START ]</button>
             <button class="btn" id="resetBtn">[ ↺ RESET ]</button>
         </div>
 
         <div class="status-line" id="status">⟩ press START or tap/shake to begin ⟨</div>
-        <div class="footer">⛵ SAM speech · wave responds to shake · tap anywhere to advance</div>
+        <div class="footer">⛵ SAM speech · zoom by clicking/tapping the fractal</div>
     </div>
 
-    <!-- ============================================================ -->
-    <!--  SAM library – ES module import                             -->
-    <!-- ============================================================ -->
     <script type="importmap">
         {
             "imports": {
@@ -396,15 +346,12 @@
     </script>
 
     <script type="module">
-        // ============================================================
-        //  IMPORTS
-        // ============================================================
         import SamJs from 'sam-js';
 
         // ============================================================
-        //  FULL ODYSSEY TEXT (same as before)
+        //  ODYSSEY TEXT (concatenated string – safe)
         // ============================================================
-        const odysseyText =
+        const odysseyTextFull =
             "The man, O Muse, inform, that many a way\n" +
             "Wound with his wisdom to his wished stay;\n" +
             "That wander'd wondrous far, when he the town\n" +
@@ -660,17 +607,20 @@
             "On him ...";
 
         // ============================================================
-        //  SPLIT INTO SENTENCES
+        //  SPLIT SENTENCES
         // ============================================================
         function splitSentences(text) {
             return text.split(/(?<=[.!?])\s+|\n/).filter(s => s.trim().length > 0);
         }
-        const sentences = splitSentences(odysseyText);
+        let sentences = splitSentences(odysseyTextFull);
+        if (sentences.length === 0) {
+            sentences = ["This is a test of the Odyssey reader with the Burning Ship fractal. Click or tap to zoom."];
+        }
 
         // ============================================================
         //  DOM REFS
         // ============================================================
-        const canvas = document.getElementById('waveCanvas');
+        const canvas = document.getElementById('fractalCanvas');
         const ctx = canvas.getContext('2d');
         const intensityValue = document.getElementById('intensityValue');
         const shakeBar = document.getElementById('shakeBar');
@@ -680,92 +630,188 @@
         const startBtn = document.getElementById('startBtn');
         const resetBtn = document.getElementById('resetBtn');
         const clickArea = document.getElementById('clickArea');
+        const zoomLevelSpan = document.getElementById('zoomLevel');
+        const centerCoordsSpan = document.getElementById('centerCoords');
+        const iterCountSpan = document.getElementById('iterCount');
 
         // ============================================================
-        //  STATE
+        //  FRACTAL STATE – square view, centered at (-0.5, 0)
         // ============================================================
-        let shakeMagnitude = 0;
-        let currentIndex = 0;
-        let isSpeaking = false;
-        let isStarted = false;
-        let advanceLock = false;
+        let minx = -2.5;
+        let maxx = 1.5;
+        let miny = -2.0;
+        let maxy = 2.0;
+        const MAX_ITER = 100;
+        let zoomCount = 0; // reset after 9 zooms
 
         // ============================================================
-        //  WAVE ANIMATION (pixelated)
+        //  RESIZE CANVAS – no DPR scaling to ensure full-container fit
         // ============================================================
         function resizeCanvas() {
             const rect = canvas.parentElement.getBoundingClientRect();
             const w = rect.width;
             const h = rect.height;
-            canvas.width = w * 2;
-            canvas.height = h * 2;
+            canvas.width = w;
+            canvas.height = h;
             canvas.style.width = w + 'px';
             canvas.style.height = h + 'px';
+            canvas._displayWidth = w;
+            canvas._displayHeight = h;
+            drawFractal();
         }
+
+        // ============================================================
+        //  MAP
+        // ============================================================
+        function map(value, inMin, inMax, outMin, outMax) {
+            return (value - inMin) * (outMax - outMin) / (inMax - inMin) + outMin;
+        }
+
+        // ============================================================
+        //  DRAW BURNING SHIP – corrected formula and flipped 180°
+        // ============================================================
+        function drawFractal() {
+            const w = canvas._displayWidth || canvas.width;
+            const h = canvas._displayHeight || canvas.height;
+            if (w === 0 || h === 0) return;
+
+            const imageData = ctx.createImageData(w, h);
+            const data = imageData.data;
+
+            // dynamic step for performance: smaller step when zoomed in,
+            // larger step when zoomed out (inverted from previous bug)
+            const zoom = (maxx - minx) / 4.0; // initial width is 4
+            const step = Math.max(1, Math.floor(1 + zoom * 0.3));
+            const effectiveStep = Math.min(step, 4);
+
+            // fill black
+            for (let i = 0; i < data.length; i += 4) {
+                data[i] = 0;
+                data[i + 1] = 0;
+                data[i + 2] = 0;
+                data[i + 3] = 255;
+            }
+
+            for (let y = 0; y < h; y += effectiveStep) {
+                for (let x = 0; x < w; x += effectiveStep) {
+                    // FLIPPED 180°:
+                    // real part: right to left (swap minx, maxx)
+                    const a = map(x, 0, w, maxx, minx);
+                    // imaginary part: bottom to top (swap miny, maxy)
+                    const b = map(y, 0, h, miny, maxy);
+
+                    let za = 0,
+                        zb = 0;
+                    const ca = a,
+                        cb = b;
+                    let iter = 0;
+                    while (iter < MAX_ITER) {
+                        // Burning Ship: z_{n+1} = (|Re(z)| + i|Im(z)|)^2 + c
+                        const aa = za * za - zb * zb;
+                        const bb = 2.0 * Math.abs(za * zb);
+                        za = aa + ca;
+                        zb = bb + cb;
+                        if (za * za + zb * zb > 16) break;
+                        iter++;
+                    }
+
+                    let r, g, bVal;
+                    if (iter === MAX_ITER) {
+                        r = 0;
+                        g = 0;
+                        bVal = 0;
+                    } else {
+                        const t = iter / MAX_ITER;
+                        r = Math.floor(20 + 180 * t);
+                        g = Math.floor(40 + 200 * t);
+                        bVal = Math.floor(10 + 100 * t);
+                    }
+
+                    for (let dy = 0; dy < effectiveStep && y + dy < h; dy++) {
+                        for (let dx = 0; dx < effectiveStep && x + dx < w; dx++) {
+                            const idx = ((y + dy) * w + (x + dx)) * 4;
+                            data[idx] = r;
+                            data[idx + 1] = g;
+                            data[idx + 2] = bVal;
+                            data[idx + 3] = 255;
+                        }
+                    }
+                }
+            }
+
+            ctx.putImageData(imageData, 0, 0);
+
+            // update info
+            const zoomLevel = (maxx - minx) / 4.0;
+            zoomLevelSpan.textContent = (1 / zoomLevel).toFixed(2);
+            const cx = (minx + maxx) / 2;
+            const cy = (miny + maxy) / 2;
+            centerCoordsSpan.textContent = `${cx.toFixed(4)}, ${cy.toFixed(4)}`;
+            iterCountSpan.textContent = MAX_ITER;
+        }
+
+        // ============================================================
+        //  ZOOM – uses same flipped mapping
+        // ============================================================
+        function zoomAt(clientX, clientY) {
+            const rect = canvas.getBoundingClientRect();
+            const px = clientX - rect.left;
+            const py = clientY - rect.top;
+            const w = canvas._displayWidth || canvas.width;
+            const h = canvas._displayHeight || canvas.height;
+
+            // flipped mapping: real = map(px,0,w,maxx,minx), imag = map(py,0,h,miny,maxy)
+            const x = map(px, 0, w, maxx, minx);
+            const y = map(py, 0, h, miny, maxy);
+
+            const newWidth = (maxx - minx) * 0.5;
+            const newHeight = (maxy - miny) * 0.5;
+            minx = x - newWidth / 2;
+            maxx = x + newWidth / 2;
+            miny = y - newHeight / 2;
+            maxy = y + newHeight / 2;
+
+            if (maxx - minx < 1e-12) {
+                resetFractal();
+                return;
+            }
+
+            zoomCount++;
+            if (zoomCount >= 9) {
+                resetFractal(); // auto-reset after 9 zooms
+            } else {
+                drawFractal();
+            }
+        }
+
+        function resetFractal() {
+            minx = -2.5;
+            maxx = 1.5;
+            miny = -2.0;
+            maxy = 2.0;
+            zoomCount = 0;
+            drawFractal();
+        }
+
+        // ============================================================
+        //  EVENTS
+        // ============================================================
+        canvas.addEventListener('click', (e) => {
+            zoomAt(e.clientX, e.clientY);
+        });
+        canvas.addEventListener('touchstart', (e) => {
+            e.preventDefault();
+            const touch = e.touches[0];
+            if (touch) zoomAt(touch.clientX, touch.clientY);
+        }, { passive: false });
+
         window.addEventListener('resize', resizeCanvas);
 
-        function drawWave(time) {
-            const w = canvas.width;
-            const h = canvas.height;
-            ctx.clearRect(0, 0, w, h);
-
-            ctx.fillStyle = '#0a1a0a';
-            ctx.fillRect(0, 0, w, h);
-
-            const amplitude = 0.3 + shakeMagnitude * 0.7;
-            const baseY = h * 0.5;
-            const maxHeight = h * 0.4 * amplitude;
-
-            const cols = 40;
-            const rows = 20;
-            const blockW = w / cols;
-            const blockH = h / rows;
-
-            for (let col = 0; col < cols; col++) {
-                const x = col * blockW;
-                const phase = (col / cols) * Math.PI * 6 + time * 0.02;
-                const yOff = Math.sin(phase) * maxHeight;
-                const waveY = baseY + yOff;
-
-                const waterHeight = Math.max(0, (baseY + maxHeight - waveY) / blockH);
-                const waterRows = Math.floor(waterHeight);
-
-                for (let row = 0; row < waterRows && row < rows; row++) {
-                    const y = (rows - 1 - row) * blockH;
-                    const depth = row / rows;
-                    const r = 20 + 60 * depth;
-                    const g = 60 + 100 * depth + 40 * shakeMagnitude;
-                    const b = 80 + 120 * depth + 60 * shakeMagnitude;
-                    ctx.fillStyle = `rgb(${r},${g},${b})`;
-                    ctx.fillRect(x, y, blockW, blockH);
-                }
-
-                if (shakeMagnitude > 0.3 && waterRows > 2) {
-                    const foamRow = Math.min(waterRows - 1, 2);
-                    const y = (rows - 1 - foamRow) * blockH;
-                    ctx.fillStyle = `rgba(220,240,255,${0.2 + shakeMagnitude * 0.3})`;
-                    ctx.fillRect(x, y, blockW, blockH * 0.8);
-                }
-            }
-
-            // Wave line
-            ctx.strokeStyle = '#4a8a5a';
-            ctx.lineWidth = 2;
-            for (let col = 0; col < cols; col++) {
-                const x = col * blockW;
-                const phase = (col / cols) * Math.PI * 6 + time * 0.02;
-                const yOff = Math.sin(phase) * maxHeight;
-                const waveY = baseY + yOff;
-                ctx.fillStyle = '#5aaa6a';
-                ctx.fillRect(x, waveY - 2, blockW, 4);
-            }
-
-            requestAnimationFrame(drawWave);
-        }
-
         // ============================================================
-        //  ACCELEROMETER
+        //  SHAKE
         // ============================================================
+        let shakeMagnitude = 0;
+
         function handleMotion(event) {
             const acc = event.accelerationIncludingGravity;
             if (!acc) return;
@@ -790,8 +836,8 @@
             shakeBar.textContent = barText;
             shakeBar.style.width = percent + '%';
 
-            let zone = 'VOID';
-            let cls = 'void';
+            let zone = 'VOID',
+                cls = 'void';
             if (shake < 0.2) {
                 zone = 'VOID';
                 cls = 'void';
@@ -845,14 +891,20 @@
                 await sam.speak(processed);
             } catch (err) {
                 console.warn('SAM error:', err);
-                const fallback = new SamJs({ speed: 72, pitch: 64 });
-                await fallback.speak('I cannot say that, but here is a test');
+                try {
+                    const fallback = new SamJs({ speed: 72, pitch: 64 });
+                    await fallback.speak('I cannot say that, but here is a test');
+                } catch (e2) { /* silent */ }
             }
         }
 
         // ============================================================
         //  ADVANCE LOGIC
         // ============================================================
+        let currentIndex = 0;
+        let isStarted = false;
+        let advanceLock = false;
+
         function advanceToNext() {
             if (advanceLock) return;
             if (!isStarted) return;
@@ -882,9 +934,6 @@
             });
         }
 
-        // ============================================================
-        //  CONTROLS
-        // ============================================================
         function startReading() {
             if (isStarted) return;
             isStarted = true;
@@ -907,7 +956,7 @@
         }
 
         // ============================================================
-        //  CLICK/TAP HANDLER (desktop support)
+        //  CLICK AREA
         // ============================================================
         clickArea.addEventListener('click', (e) => {
             if (e.target.closest('button')) return;
@@ -929,7 +978,6 @@
         // ============================================================
         window.addEventListener('load', () => {
             resizeCanvas();
-            requestAnimationFrame(drawWave);
             requestMotionPermission();
             updateUI(0);
             statusEl.textContent = '⟩ press START or tap/shake to begin ⟨';
@@ -938,7 +986,7 @@
                 e.stopPropagation();
                 if (!isStarted) {
                     startReading();
-                    if (!advanceLock && currentIndex < sentences.length) {
+                    if (!advanceLock && isStarted && currentIndex < sentences.length) {
                         advanceToNext();
                     }
                 }
@@ -946,6 +994,7 @@
             resetBtn.addEventListener('click', (e) => {
                 e.stopPropagation();
                 resetReading();
+                resetFractal();
             });
         });
     </script>
